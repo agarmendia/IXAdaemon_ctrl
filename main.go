@@ -1,38 +1,65 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"net"
 	"os"
+	"os/exec"
+	"time"
 )
-
-//Asks the native programs state to the server, and returns:
-//0 if OK
-//1 if waiting
-//2 if there is not a instance of the native program
-//3 there is no server running
 
 func main() {
 
-	var state []byte
-	state = []byte("1")
+	ctrlPort := parseArguments()
+	counter := 0
 
-	port := parseArguments()
-
-	service := ":" + port
-	conn, err := net.Dial("tcp", service)
+	conn, err := net.Dial("tcp", "127.0.0.1:"+ctrlPort)
 	if err != nil {
-		os.Exit(3)
+		cmd := "IXAdaemon_server"
+		args := []string{"java", "atzerapena"}
+		if err := exec.Command(cmd, args...).Start(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}
+	time.Sleep(1 * time.Second)
+	conn, err = net.Dial("tcp", "127.0.0.1:"+ctrlPort)
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	conn.Write([]byte("state"))
-	conn.Read(state)
+	for {
+		conn.Write([]byte("state\n"))
+		message, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	if string(state) == "1" {
-		os.Exit(2)
-	} else if string(state) == "2" {
-		os.Exit(1)
-	} else {
+		if message == "1\n" {
+			fmt.Print("...")
+		}
+		if message == "0\n" {
+
+			break
+		}
+		if message == "3\n" {
+
+			counter++
+			if counter == 5 {
+				break
+			}
+		}
+
+		time.Sleep(2 * time.Second)
+
+	}
+	conn.Close()
+
+	if counter != 10 {
 		os.Exit(0)
+	} else {
+		os.Exit(1)
 	}
 
 }
