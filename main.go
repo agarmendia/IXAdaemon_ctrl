@@ -11,13 +11,11 @@ import (
 
 func main() {
 
-	ctrlPort := parseArguments()
+	ctrlPort, cmd, args := parseArguments()
 	counter := 0
 
 	conn, err := net.Dial("tcp", "127.0.0.1:"+ctrlPort)
 	if err != nil {
-		cmd := "IXAdaemon_server"
-		args := []string{"java", "atzerapena"}
 		if err := exec.Command(cmd, args...).Start(); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -40,11 +38,10 @@ func main() {
 			fmt.Print("...")
 		}
 		if message == "0\n" {
-
 			break
 		}
 		if message == "3\n" {
-
+			fmt.Print("---")
 			counter++
 			if counter == 5 {
 				break
@@ -56,7 +53,7 @@ func main() {
 	}
 	conn.Close()
 
-	if counter != 10 {
+	if counter != 5 {
 		os.Exit(0)
 	} else {
 		os.Exit(1)
