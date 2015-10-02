@@ -25,7 +25,6 @@ func parseArguments() (string, string, []string) {
 	ports := make([]string, 2)
 	ports[0] = "--mainPort=" + mainPort
 	ports[1] = "--ctrlPort=" + ctrlPort
-	fmt.Println(ports)
 	command := "IXAdaemon_server"
 	args = append(ports, args[0:]...)
 

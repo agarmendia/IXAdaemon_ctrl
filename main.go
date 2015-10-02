@@ -11,9 +11,11 @@ import (
 
 func main() {
 
+	//Parse arguments
 	ctrlPort, cmd, args := parseArguments()
 	counter := 0
 
+	//Connect to the control port of IXAdaemon_server
 	conn, err := net.Dial("tcp", "127.0.0.1:"+ctrlPort)
 	if err != nil {
 		if err := exec.Command(cmd, args...).Start(); err != nil {
@@ -21,7 +23,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(100 * time.Millisecond)
 	conn, err = net.Dial("tcp", "127.0.0.1:"+ctrlPort)
 	if err != nil {
 		fmt.Println(err)
@@ -51,6 +53,7 @@ func main() {
 		time.Sleep(2 * time.Second)
 
 	}
+	fmt.Println()
 	conn.Close()
 
 	if counter != 5 {
